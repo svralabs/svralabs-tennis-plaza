@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tennis Plaza — Join The Thrill. Train Like A Pro.</title>
+  <meta name="description" content="Experience the thrill of tennis and train like a true pro with expert coaching and a supportive community. Join us today and elevate your game to new heights.">
+
+  <!-- FAVICON: CUSTOM TENNIS PLAZA MONOGRAM LOGO IN HEAD -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23D4F72C'/%3E%3Cpath d='M25 15 Q50 50 25 85 M75 15 Q50 50 75 85' stroke='%230E1015' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%230E1015'/%3E%3C/svg%3E">
+
+  <!-- Google Fonts: Plus Jakarta Sans for the exact athletic display & typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            lime: {
+              DEFAULT: '#D4F72C',
+              hover: '#C2E421',
+              light: '#F5FEE3',
+              glow: 'rgba(212, 247, 44, 0.45)',
+            },
+            dark: {
+              DEFAULT: '#0E1015',
+              surface: '#151821',
+              card: '#1B1E28',
+            },
+            court: {
+              green: '#18351B',
+              turf: '#1F4223',
+              blue: '#1A56DB',
+              clay: '#C25538',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP & ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Alpine.js for ultra-lightweight reactive UI state (~10kB) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+  <style>
+    /* Strict modern-web-guidance for <dialog> */
+    dialog:modal {
+      overscroll-behavior: contain;
+    }
+    dialog::backdrop {
+      background-color: rgba(14, 16, 21, 0.75);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+      overscroll-behavior: contain;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    section, footer {
+      scroll-margin-top: 96px;
+    }
+
+    /* Headline Typography: Signature Alternating Italic + Heavy Roman */
+    .headline-font {
+      font-family: '"Plus Jakarta Sans"', sans-serif;
+      letter-spacing: -0.035em;
+      line-height: 0.95;
+    }
+
+    /* Giant watermark text in footer */
+    .watermark-text {
+      font-size: clamp(3.5rem, 12vw, 9.5rem);
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+    }
+
+    .badge-faceted {
+      clip-path: polygon(
+        8px 0%, 
+        calc(100% - 8px) 0%, 
+        100% 8px, 
+        100% calc(100% - 8px), 
+        calc(100% - 8px) 100%, 
+        8px 100%, 
+        0% calc(100% - 8px), 
+        0% 8px
+      );
+    }
+  </style>
+</head>
+<body x-data="tennisApp" class="bg-[#F8F9FA] text-[#0E1015] font-sans antialiased selection:bg-lime selection:text-black">
+
+  <!-- ======================================================== -->
+  <!-- TOAST NOTIFICATION CONTAINER (REACTIVE FEEDBACK)        -->
+  <!-- ======================================================== -->
+  <div x-show="toast.show" 
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:enter-start="opacity-0 transform translate-y-4"
+       x-transition:enter-end="opacity-100 transform translate-y-0"
+       x-transition:leave="transition ease-in duration-200"
+       x-transition:leave-start="opacity-100 transform translate-y-0"
+       x-transition:leave-end="opacity-0 transform translate-y-4"
+       class="fixed bottom-6 right-6 z-50 bg-[#0E1015] text-white px-5 py-3 rounded-2xl shadow-2xl border border-lime/30 flex items-center space-x-3"
+       style="display: none;">
+    <span class="w-2.5 h-2.5 rounded-full bg-lime animate-pulse"></span>
+    <span class="text-xs font-bold tracking-tight" x-text="toast.message"></span>
+  </div>
+
+  <!-- WRAPPER CONTAINER -->
+  <div class="max-w-[1360px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-12 sm:space-y-16">
+
+    <!-- ======================================================== -->
+    <!-- SLEEK ROUNDED FLOATING NAVBAR                            -->
+    <!-- ELEGANT ROUNDED-FULL PILL WITH ACTIVE NAV & CART DRAWER  -->
+    <!-- ======================================================== -->
+    <header id="mainNavbar" class="relative z-40 sticky top-4">
+      
+      <!-- Main Rounded Pill Container -->
+      <div class="rounded-full bg-white/95 backdrop-blur-md px-6 py-3 shadow-lg border border-slate-200/80 flex items-center justify-between">
+        
+        <!-- Brand Logo: Geometric Tennis Court & Ball Monogram -->
+        <a href="#hero" class="flex items-center space-x-3 group">
+          <div class="w-9 h-9 rounded-full bg-lime flex items-center justify-center text-dark font-black shadow-sm group-hover:rotate-12 transition-transform duration-300">
+            <!-- Custom Tennis Court & Ball Vector Icon -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <line x1="12" y1="4" x2="12" y2="20"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <circle cx="12" cy="12" r="3" fill="#0E1015"/>
+            </svg>
+          </div>
+          <div>
+            <span class="font-black text-lg tracking-tight text-dark block leading-none">Tennis Plaza</span>
+            <span class="text-[9px] uppercase tracking-widest text-slate-500 font-extrabold block mt-0.5">CLUB & ACADEMY</span>
+          </div>
+        </a>
+
+        <!-- Center Nav Links with Smooth Scroll & Active Indicator -->
+        <nav class="hidden md:flex items-center space-x-1 text-xs font-bold text-slate-700">
+          <a href="#programs" 
+             @click="activeTab = 'programs'"
+             :class="activeTab === 'programs' ? 'bg-lime text-black font-extrabold shadow-sm' : 'hover:text-black hover:bg-slate-100'"
+             class="rounded-full px-4 py-2 transition-all duration-200">
+            Programs
+          </a>
+          <a href="#about" 
+             @click="activeTab = 'about'"
+             :class="activeTab === 'about' ? 'bg-lime text-black font-extrabold shadow-sm' : 'hover:text-black hover:bg-slate-100'"
+             class="rounded-full px-4 py-2 transition-all duration-200">
+            About
+          </a>
+          <a href="#courts" 
+             @click="activeTab = 'courts'"
+             :class="activeTab === 'courts' ? 'bg-lime text-black font-extrabold shadow-sm' : 'hover:text-black hover:bg-slate-100'"
+             class="rounded-full px-4 py-2 transition-all duration-200">
+            Our Courts
+          </a>
+          <a href="#shop" 
+             @click="activeTab = 'shop'"
+             :class="activeTab === 'shop' ? 'bg-lime text-black font-extrabold shadow-sm' : 'hover:text-black hover:bg-slate-100'"
+             class="rounded-full px-4 py-2 transition-all duration-200">
+            Pro Shop
+          </a>
+        </nav>
+
+        <!-- Right Action Controls (Fully Functional) -->
+        <div class="flex items-center space-x-2.5">
+          <!-- Contact Us (Opens Booking / Contact Modal) -->
+          <button type="button" 
+                  @click="openBookingModal('contact')" 
+                  class="rounded-full bg-lime hover:bg-lime-hover text-dark px-5 py-2.5 font-black text-xs uppercase tracking-tight transition-all duration-200 transform hover:-translate-y-0.5 shadow-sm">
+            Contact Us
+          </button>
+
+          <!-- Interactive Cart Button with Reactive Counter Badge -->
+          <button type="button" 
+                  @click="cartOpen = true" 
+                  class="w-9 h-9 rounded-full bg-slate-100 hover:bg-lime text-dark flex items-center justify-center transition-colors relative" 
+                  aria-label="Open Pro Shop Bag">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <!-- Badge Count -->
+            <span x-show="cartCount > 0" 
+                  x-text="cartCount"
+                  class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-dark text-lime rounded-full text-[9px] font-black flex items-center justify-center border border-white">
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ======================================================== -->
+    <!-- HERO SECTION (AUTHENTIC TENNIS GRASS & BLUE RACKET)      -->
+    <!-- GSAP ANIMATED STAGGER + FLOATING TENNIS BALL             -->
+    <!-- ======================================================== -->
+    <section id="hero" class="relative rounded-[32px] sm:rounded-[40px] overflow-hidden bg-court-green text-white p-7 sm:p-12 lg:p-16 min-h-[580px] lg:min-h-[640px] flex flex-col justify-between shadow-2xl border border-white/5">
+      
+      <!-- REAL HIGH-RES GRASS TURF BACKGROUND (AUTHENTIC TENNIS ASSET) -->
+      <div class="absolute inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1542144582-1ba00456b5e3?auto=format&fit=crop&w=2000&q=85" 
+             alt="Tennis Court Lawn" 
+             class="w-full h-full object-cover object-center opacity-40 mix-blend-overlay">
+        <div class="absolute inset-0 bg-gradient-to-r from-[#102412] via-[#18351B]/90 to-transparent"></div>
+      </div>
+
+      <!-- BLUE TENNIS RACKET VECTOR ILLUSTRATION ON THE RIGHT -->
+      <div id="heroBlueRacket" class="absolute -right-12 sm:-right-8 top-1/2 -translate-y-1/2 w-[340px] sm:w-[480px] lg:w-[640px] pointer-events-none z-10 opacity-95">
+        <svg viewBox="0 0 600 700" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto drop-shadow-2xl">
+          <!-- Blue Racket Frame -->
+          <ellipse cx="380" cy="280" rx="190" ry="240" stroke="#1D68D8" stroke-width="32" transform="rotate(-15 380 280)"/>
+          <ellipse cx="380" cy="280" rx="174" ry="224" stroke="#0D47A1" stroke-width="4" transform="rotate(-15 380 280)"/>
+          
+          <!-- Racket String Grid -->
+          <g stroke="#93C5FD" stroke-width="1.8" opacity="0.65" transform="rotate(-15 380 280)">
+            <line x1="240" y1="80" x2="240" y2="480"/>
+            <line x1="275" y1="60" x2="275" y2="500"/>
+            <line x1="310" y1="50" x2="310" y2="510"/>
+            <line x1="345" y1="45" x2="345" y2="515"/>
+            <line x1="380" y1="40" x2="380" y2="520"/>
+            <line x1="415" y1="45" x2="415" y2="515"/>
+            <line x1="450" y1="50" x2="450" y2="510"/>
+            <line x1="485" y1="60" x2="485" y2="500"/>
+            <line x1="520" y1="80" x2="520" y2="480"/>
+            <line x1="210" y1="120" x2="550" y2="120"/>
+            <line x1="200" y1="160" x2="560" y2="160"/>
+            <line x1="195" y1="200" x2="565" y2="200"/>
+            <line x1="190" y1="240" x2="570" y2="240"/>
+            <line x1="190" y1="280" x2="570" y2="280"/>
+            <line x1="195" y1="320" x2="565" y2="320"/>
+            <line x1="200" y1="360" x2="560" y2="360"/>
+            <line x1="210" y1="400" x2="550" y2="400"/>
+            <line x1="230" y1="440" x2="530" y2="440"/>
+          </g>
+
+          <!-- Racket Throat & Handle -->
+          <path d="M305 480 L350 680 L395 680 L440 480" fill="#1D68D8" stroke="#0D47A1" stroke-width="4"/>
+          <rect x="345" y="600" width="55" height="180" rx="10" fill="#111827"/>
+        </svg>
+      </div>
+
+      <!-- HERO LEFT CONTENT -->
+      <div class="relative z-20 max-w-xl space-y-6">
+        
+        <!-- Headline: EXACT "JOIN THE THRILL / TRAIN LIKE A PRO" -->
+        <h1 class="headline-font text-5xl sm:text-6xl md:text-7xl lg:text-[78px] text-white hero-anim-item">
+          <span class="italic font-light">JOIN</span> <span class="font-black">THE THRILL</span><br>
+          <span class="italic font-light">TRAIN</span> <span class="font-black">LIKE A PRO</span>
+        </h1>
+
+        <!-- Subtitle Description -->
+        <p class="text-white/80 text-sm sm:text-base font-normal leading-relaxed max-w-md hero-anim-item">
+          Experience the thrill of tennis and train like a true pro with expert coaching and a supportive community. Join us today and elevate your game to new heights.
+        </p>
+
+        <!-- Functional CTA Buttons (Opens Booking Modal) -->
+        <div class="pt-2 flex items-center space-x-2 hero-anim-item">
+          <button type="button" 
+                  @click="openBookingModal('hero')" 
+                  class="badge-faceted bg-lime hover:bg-lime-hover text-dark px-7 py-3.5 font-black text-xs uppercase tracking-wider transition-all transform hover:-translate-y-0.5 shadow-lg shadow-lime/20">
+            Book a Court
+          </button>
+          <button type="button" 
+                  @click="openBookingModal('hero')" 
+                  class="w-11 h-11 badge-faceted bg-lime hover:bg-lime-hover text-dark flex items-center justify-center font-black transition-all" 
+                  aria-label="Book a court session">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- STATS FLOATING CARD (INSIDE THE BLUE RACKET REGION) -->
+      <div id="heroStatsCard" class="relative z-20 self-end lg:mr-16 mt-8 lg:mt-0">
+        <div class="bg-[#122A16]/80 backdrop-blur-md border border-white/15 rounded-2xl p-4 sm:p-5 text-white space-y-3.5 shadow-2xl max-w-xs">
+          
+          <!-- Stat 1 -->
+          <div class="flex items-center space-x-3">
+            <div class="flex -space-x-2">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full border-2 border-[#122A16] object-cover" alt="Member">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full border-2 border-[#122A16] object-cover" alt="Member">
+              <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full border-2 border-[#122A16] object-cover" alt="Member">
+            </div>
+            <div>
+              <div class="font-extrabold text-sm leading-tight text-white">5000+</div>
+              <div class="text-[10px] text-white/70">Active Players in Our Community</div>
+            </div>
+          </div>
+
+          <div class="h-px bg-white/10"></div>
+
+          <!-- Stat 2 -->
+          <div class="flex items-center space-x-3">
+            <div class="w-7 h-7 rounded-lg bg-lime/20 flex items-center justify-center text-lime font-black text-xs">
+              200
+            </div>
+            <div>
+              <div class="font-extrabold text-sm leading-tight text-white">200+</div>
+              <div class="text-[10px] text-white/70">Weekly Matches, Clinics & Tournaments</div>
+            </div>
+          </div>
+
+          <div class="h-px bg-white/10"></div>
+
+          <!-- Stat 3 -->
+          <div class="flex items-center space-x-3">
+            <div class="w-7 h-7 rounded-lg bg-lime/20 flex items-center justify-center text-lime font-black text-xs">
+              10+
+            </div>
+            <div>
+              <div class="font-extrabold text-sm leading-tight text-white">10+</div>
+              <div class="text-[10px] text-white/70">Certified Professional ATP/WPT Coaches</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- SECTION: ABOUT TENNIS PLAZA & ACADEMY                    -->
+    <!-- HERITAGE, METHODOLOGY, AND ELITE CLUB STANDARDS          -->
+    <!-- ======================================================== -->
+    <section id="about" class="space-y-8 pt-4">
+      
+      <!-- Section Header Row -->
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+        <div>
+          <div class="inline-flex items-center space-x-2 bg-slate-100 rounded-full px-4 py-1 text-[11px] font-black uppercase tracking-wider text-slate-700 mb-3 border border-slate-200">
+            <span class="w-2 h-2 rounded-full bg-lime"></span>
+            <span>ABOUT THE ACADEMY</span>
+          </div>
+          <h2 class="headline-font text-4xl sm:text-5xl lg:text-[54px] text-[#0E1015]">
+            <span class="italic font-light">ABOUT</span> — <span class="font-black">THE ACADEMY.</span><br>
+            <span class="italic font-light">PASSION MEETS</span> <span class="font-black">PERFECTION.</span>
+          </h2>
+        </div>
+
+        <div class="max-w-md space-y-3">
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Didirikan dengan visi merevolusi kultur tenis dan olahraga raket, Tennis Plaza menghadirkan fasilitas berstandar turnamen internasional, kurikulum pelatihan berlisensi ATP & ITF, serta komunitas pemain yang suportif dan dinamis.
+          </p>
+          <div class="flex items-center space-x-3 pt-1">
+            <button type="button" 
+                    @click="openBookingModal('academy')" 
+                    class="rounded-full bg-lime hover:bg-lime-hover text-black px-5 py-2.5 font-black text-xs uppercase tracking-tight transition-all shadow-sm">
+              Discover Academy ↗
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Feature Pillars Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Pillar 1: Championship Heritage -->
+        <div class="about-card rounded-3xl bg-white p-7 sm:p-8 border border-slate-200 shadow-sm space-y-4 hover:border-slate-300 transition-all flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-[#E8F5E9] text-[#1E4620]">
+              ITF Certified Spec
+            </div>
+            <h3 class="font-black text-xl text-[#0E1015]">Championship Surfaces</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              4 Lapangan turnamen berstandar grand slam dengan 8-layer Plexicushion shock-absorption untuk perlindungan sendi maksimal serta lapangan tanah liat merah bersertifikasi Roland Garros.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-black text-slate-900">
+            <span>550 Lux Anti-Glare Lighting</span>
+            <span class="text-lime text-base font-black">●</span>
+          </div>
+        </div>
+
+        <!-- Pillar 2: Pro Coaching Methodology (Signature Solid Black Card) -->
+        <div class="about-card rounded-3xl bg-black text-white p-7 sm:p-8 border border-black shadow-xl space-y-4 flex flex-col justify-between transform md:-translate-y-2">
+          <div class="space-y-3">
+            <div class="inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-lime text-black">
+              ATP & ITF Licensed
+            </div>
+            <h3 class="font-black text-xl text-white">Biomechanical Mastery</h3>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Program pelatihan presisi menggunakan video stroke analysis berkecepatan tinggi, drill footwork terstruktur, dan strategi matchplay personal untuk melesatkan performa pemain secara nyata.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-black text-lime">
+            <span>Custom Progression Pathways</span>
+            <span>↗</span>
+          </div>
+        </div>
+
+        <!-- Pillar 3: Complete Club Hub -->
+        <div class="about-card rounded-3xl bg-white p-7 sm:p-8 border border-slate-200 shadow-sm space-y-4 hover:border-slate-300 transition-all flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-slate-100 text-slate-700">
+              Full-Service Clubhouse
+            </div>
+            <h3 class="font-black text-xl text-[#0E1015]">All-In-One Club Lifestyle</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Lengkap dengan workshop restringing raket 30 menit, thermal recovery plunge bath, pro shop peralatan resmi Wilson & Babolat, serta clubhouse cafe eksklusif untuk member.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-black text-slate-900">
+            <span>Wellness & Recovery Lounge</span>
+            <span class="text-lime text-base font-black">●</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Metrics Ribbon -->
+      <div class="rounded-3xl bg-[#0E1015] text-white p-6 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-6 border border-white/10 shadow-lg">
+        <div class="space-y-1 sm:border-r sm:border-white/10 sm:pr-6">
+          <div class="text-3xl sm:text-4xl font-black text-lime">15+</div>
+          <div class="text-xs text-white font-bold uppercase tracking-wider">Tournament Courts</div>
+          <div class="text-[11px] text-slate-400">Indoor AC & Outdoor Clay</div>
+        </div>
+        <div class="space-y-1 lg:border-r lg:border-white/10 lg:pr-6">
+          <div class="text-3xl sm:text-4xl font-black text-white">300+</div>
+          <div class="text-xs text-white font-bold uppercase tracking-wider">Weekly Clinics</div>
+          <div class="text-[11px] text-slate-400">Private, Semi & Junior Prep</div>
+        </div>
+        <div class="space-y-1 sm:border-r sm:border-white/10 sm:pr-6">
+          <div class="text-3xl sm:text-4xl font-black text-lime">5.2K+</div>
+          <div class="text-xs text-white font-bold uppercase tracking-wider">Active Members</div>
+          <div class="text-[11px] text-slate-400">Vibrant Tennis Community</div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-3xl sm:text-4xl font-black text-white">98%</div>
+          <div class="text-xs text-white font-bold uppercase tracking-wider">Player Satisfaction</div>
+          <div class="text-[11px] text-slate-400">Measured Skill & NTRP Growth</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- SECTION 2: GAME — READY COURTS. PRO — LEVEL STANDARDS.   -->
+    <!-- 3-CARD STAGGERED GRID WITH REAL TENNIS ASSETS           -->
+    <!-- ======================================================== -->
+    <section id="courts" class="space-y-8 pt-4">
+      
+      <!-- Section Header Row -->
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+        
+        <!-- Left Headline -->
+        <h2 class="headline-font text-4xl sm:text-5xl lg:text-[54px] text-[#0E1015]">
+          <span class="italic font-light">GAME</span> — <span class="font-black">READY COURTS.</span><br>
+          <span class="italic font-light">PRO</span> — <span class="font-black">LEVEL STANDARDS.</span>
+        </h2>
+
+        <!-- Right Description + Action Button -->
+        <div class="max-w-md space-y-3">
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Train or play on 4 professional-grade courts — indoor & outdoor, with night lighting and locker room access. Book your session anytime, easily online.
+          </p>
+          <div class="flex items-center space-x-2">
+            <button type="button" 
+                    @click="openBookingModal('courts')" 
+                    class="badge-faceted bg-lime hover:bg-lime-hover text-dark px-5 py-2.5 font-black text-xs uppercase tracking-tight transition-all">
+              Explore Courts
+            </button>
+            <button type="button" 
+                    @click="openBookingModal('courts')" 
+                    class="w-9 h-9 badge-faceted bg-lime hover:bg-lime-hover text-dark flex items-center justify-center font-black transition-all" 
+                    aria-label="Explore courts">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Court Photography Grid (3 Authentic Tennis Court Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch relative">
+        
+        <!-- Card 1: Sunset/Dusk Hard Court (Left) -->
+        <div class="court-card md:col-span-5 rounded-[28px] overflow-hidden bg-slate-900 aspect-[4/3] md:aspect-auto md:min-h-[380px] relative group shadow-sm border border-slate-200">
+          <img src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?auto=format&fit=crop&w=1000&q=80" 
+               alt="Championship Hard Court at Sunset" 
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute bottom-4 left-4 right-4 bg-black/65 backdrop-blur-md text-white p-3.5 rounded-2xl flex justify-between items-center text-xs border border-white/10">
+            <div>
+              <div class="font-black text-sm">Court 1 & 2</div>
+              <div class="text-[10px] text-slate-300">Championship Hardcourt</div>
+            </div>
+            <button type="button" @click="openBookingModal('court1')" class="badge-faceted bg-lime text-black font-black text-[10px] uppercase px-3 py-1.5">
+              Book Court
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: 2 Staggered Court Cards with Mint Connecting Swoosh -->
+        <div class="md:col-span-7 flex flex-col justify-between gap-5 relative">
+          
+          <!-- Card 2: Tournament Stadium Blue Court -->
+          <div class="court-card rounded-[28px] overflow-hidden bg-slate-900 h-[200px] relative group shadow-sm border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1542446608-e9525230faed?auto=format&fit=crop&w=1000&q=80" 
+                 alt="Stadium Blue Tournament Tennis Court" 
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute top-4 left-4 badge-faceted bg-white/90 backdrop-blur-md text-black px-3 py-1 text-[10px] font-black uppercase tracking-wider">
+              ATP / WPT Tournament Standard
+            </div>
+            <div class="absolute bottom-3 right-4 text-xs font-black text-white bg-black/60 px-3 py-1 rounded-full">
+              550 Lux Anti-Glare
+            </div>
+          </div>
+
+          <!-- Card 3: Clay & Turf Championship Court -->
+          <div class="court-card rounded-[28px] overflow-hidden bg-slate-900 h-[220px] relative group shadow-sm border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=1000&q=80" 
+                 alt="Red Clay Tennis Court" 
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="absolute bottom-4 left-4 right-4 bg-black/65 backdrop-blur-md text-white p-3.5 rounded-2xl flex justify-between items-center text-xs border border-white/10">
+              <div>
+                <div class="font-black text-sm">Court 3 & 4</div>
+                <div class="text-[10px] text-slate-300">Roland Garros Red Clay Court</div>
+              </div>
+              <button type="button" @click="openBookingModal('court3')" class="badge-faceted bg-lime text-black font-black text-[10px] uppercase px-3 py-1.5">
+                Book Court
+              </button>
+            </div>
+          </div>
+
+          <!-- Mint Decorative Connecting Swoosh SVG (from screenshot) -->
+          <svg class="hidden lg:block absolute -right-6 top-1/2 w-28 h-40 pointer-events-none text-emerald-300/80 stroke-current" fill="none" viewBox="0 0 100 160">
+            <path d="M10 20 C60 50, 80 100, 20 150" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- SECTION 3: GEAR — UP RIGHT. PLAY — YOUR BEST.            -->
+    <!-- FUNCTIONAL PRO SHOP WITH LIVE CART SYSTEM               -->
+    <!-- ======================================================== -->
+    <section id="shop" class="space-y-8 pt-4">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: Copy + 2 Product Racket Cards -->
+        <div class="lg:col-span-6 space-y-6">
+          
+          <div class="space-y-3">
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-md">
+              Train or play on 4 professional-grade courts — indoor & outdoor, with night lighting and locker room access. Book your session anytime, easily online.
+            </p>
+            <div class="flex items-center space-x-2">
+              <button type="button" 
+                      @click="cartOpen = true" 
+                      class="badge-faceted bg-lime hover:bg-lime-hover text-dark px-5 py-2.5 font-black text-xs uppercase tracking-tight transition-all">
+                Shop Pro Shop
+              </button>
+              <button type="button" 
+                      @click="cartOpen = true" 
+                      class="w-9 h-9 badge-faceted bg-lime hover:bg-lime-hover text-dark flex items-center justify-center font-black" 
+                      aria-label="View Pro Shop">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Two Tennis Product Cards (Clicking adds to live cart!) -->
+          <div class="grid grid-cols-2 gap-4 pt-2">
+            
+            <!-- Tennis Racket Product 1 (Authentic Babolat & Tennis Ball on Court) -->
+            <div class="gear-card rounded-2xl overflow-hidden bg-[#E2EDE2] border border-slate-200 relative aspect-[3/4] group shadow-sm">
+              <img src="https://images.unsplash.com/photo-1542144582-1ba00456b5e3?auto=format&fit=crop&w=600&q=80" 
+                   alt="Babolat Pure Aero Tennis Racket and Ball" 
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              
+              <!-- Bottom Action Tag -->
+              <div class="absolute bottom-3 left-3 right-3 bg-black/80 backdrop-blur-md rounded-xl p-2.5 text-white flex justify-between items-center text-[10px] border border-white/10">
+                <div>
+                  <div class="font-black text-xs">Vortex Carbon Pro</div>
+                  <div class="text-slate-300">Rp 1.850.000</div>
+                </div>
+                <!-- Functional Add To Bag Button -->
+                <button type="button" 
+                        @click="addToCart('Vortex Carbon Pro', 1850000, 'https://images.unsplash.com/photo-1542144582-1ba00456b5e3?auto=format&fit=crop&w=200&q=80')" 
+                        class="w-7 h-7 badge-faceted bg-lime text-black flex items-center justify-center font-black hover:scale-110 transition-transform" 
+                        title="Add to Bag">
+                  +
+                </button>
+              </div>
+            </div>
+
+            <!-- Tennis Racket Product 2 (Yonex Isometric Tour & Tennis Ball) -->
+            <div class="gear-card rounded-2xl overflow-hidden bg-[#D9EAF5] border border-slate-200 relative aspect-[3/4] group shadow-sm">
+              <img src="https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?auto=format&fit=crop&w=600&q=80" 
+                   alt="Yonex Isometric Match Tennis Racket" 
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              
+              <!-- Bottom Action Tag -->
+              <div class="absolute bottom-3 left-3 right-3 bg-black/80 backdrop-blur-md rounded-xl p-2.5 text-white flex justify-between items-center text-[10px] border border-white/10">
+                <div>
+                  <div class="font-black text-xs">Aura Spin Master</div>
+                  <div class="text-slate-300">Rp 2.100.000</div>
+                </div>
+                <!-- Functional Add To Bag Button -->
+                <button type="button" 
+                        @click="addToCart('Aura Spin Master', 2100000, 'https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?auto=format&fit=crop&w=200&q=80')" 
+                        class="w-7 h-7 badge-faceted bg-lime text-black flex items-center justify-center font-black hover:scale-110 transition-transform" 
+                        title="Add to Bag">
+                  +
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right Column: Headline + Jumping Tennis Player Card -->
+        <div class="lg:col-span-6 space-y-6">
+          
+          <!-- Headline -->
+          <h2 class="headline-font text-4xl sm:text-5xl lg:text-[54px] text-[#0E1015]">
+            <span class="italic font-light">GEAR</span> — <span class="font-black">UP RIGHT</span><br>
+            <span class="italic font-light">PLAY</span> — <span class="font-black">YOUR BEST.</span>
+          </h2>
+
+          <!-- Tall Portrait Action Card: Real Tennis Player on Court with Racket & Ball -->
+          <div class="gear-card rounded-[28px] overflow-hidden bg-slate-900 aspect-[4/5] relative group shadow-md border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1595435742656-5272d0b3fa82?auto=format&fit=crop&w=1000&q=85" 
+                 alt="Tennis Player in White Outfit with Tennis Racket" 
+                 class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700">
+            
+            <!-- Top Translucent Pill Badge -->
+            <div class="absolute top-4 left-4 right-4 flex justify-between items-center">
+              <div class="bg-black/50 backdrop-blur-md text-white text-xs px-4 py-2 rounded-full border border-white/10 max-w-xs font-semibold">
+                Train or Play On 4 Professional-Grade Courts (Indoor & Outdoor)
+              </div>
+              <button type="button" @click="openBookingModal('coaching')" class="w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center text-xs hover:bg-lime hover:text-black transition-colors">
+                ↗
+              </button>
+            </div>
+
+            <!-- Bottom Caption -->
+            <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md text-black px-4 py-1.5 rounded-full text-xs font-black">
+              Dynamic Pro Coaching
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- SECTION 4: OWN — YOUR JOURNEY. ELEVATE — YOUR GAME.      -->
+    <!-- ACCORDION PLANS + ATHLETE COACH CARD                    -->
+    <!-- ======================================================== -->
+    <section id="programs" class="space-y-8 pt-4">
+      
+      <!-- Center Headline -->
+      <div class="text-center max-w-2xl mx-auto space-y-3">
+        <h2 class="headline-font text-4xl sm:text-5xl lg:text-[54px] text-[#0E1015]">
+          <span class="font-black">OWN</span> — <span class="italic font-light">YOUR JOURNEY.</span><br>
+          <span class="font-black">ELEVATE</span> — <span class="italic font-light">YOUR GAME.</span>
+        </h2>
+        
+        <!-- Interactive Filter Switcher (Start Playing / My Plan) -->
+        <div class="inline-flex bg-slate-200/80 p-1 rounded-full text-xs font-black text-slate-700">
+          <button type="button" 
+                  @click="planTab = 'start'"
+                  :class="planTab === 'start' ? 'bg-white text-black shadow-sm' : 'hover:text-black'"
+                  class="px-5 py-1.5 rounded-full transition-all">
+            Start Playing
+          </button>
+          <button type="button" 
+                  @click="planTab = 'myplan'"
+                  :class="planTab === 'myplan' ? 'bg-white text-black shadow-sm' : 'hover:text-black'"
+                  class="px-5 py-1.5 rounded-full transition-all">
+            My Plan
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Grid: Accordion List (Left) + Player Card (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: Interactive Accordion List -->
+        <div class="lg:col-span-6 space-y-3.5">
+          
+          <!-- Plan 1: Beginner Plan -->
+          <div class="plan-card rounded-2xl border transition-all duration-300"
+               :class="activePlan === 'plan1' ? 'bg-black text-white p-6 sm:p-7 shadow-2xl border-black ring-1 ring-white/10' : 'bg-white text-[#0E1015] border-slate-200 p-5 hover:border-slate-300 shadow-sm'"
+               :style="activePlan === 'plan1' ? 'background-color: #000000 !important; color: #ffffff !important;' : ''">
+            <div class="flex justify-between items-center font-bold cursor-pointer" @click="activePlan = (activePlan === 'plan1' ? '' : 'plan1')">
+              <span class="text-base sm:text-lg font-black" :class="activePlan === 'plan1' ? 'text-white' : 'text-[#0E1015]'">Beginner Plan</span>
+              <span class="text-2xl font-black leading-none" :class="activePlan === 'plan1' ? 'text-lime' : 'text-slate-400'" x-text="activePlan === 'plan1' ? '—' : '+'"></span>
+            </div>
+            <div x-show="activePlan === 'plan1'" x-collapse class="mt-4 space-y-4">
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                Pengenalan fundamental tenis, grip continental, teknik forehand/backhand dasar, dan kelas mini match kelompok bersama instruktur bersertifikasi.
+              </p>
+              <div class="flex justify-between items-center pt-3 border-t border-white/15">
+                <span class="font-black text-white text-sm sm:text-base">Rp 350.000 <span class="text-xs font-normal text-slate-300">/ session</span></span>
+                <button type="button" @click="openBookingModal('beginner')" class="rounded-full bg-lime hover:bg-lime-hover text-black px-5 py-2.5 font-black text-xs uppercase tracking-wider transition-all">Join Now ↗</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan 2: Pro Plan (EXACT ACTIVE SOLID JET BLACK CARD) -->
+          <div class="plan-card rounded-2xl border transition-all duration-300"
+               :class="activePlan === 'plan2' ? 'bg-black text-white p-6 sm:p-7 shadow-2xl border-black ring-1 ring-white/10' : 'bg-white text-[#0E1015] border-slate-200 p-5 hover:border-slate-300 shadow-sm'"
+               :style="activePlan === 'plan2' ? 'background-color: #000000 !important; color: #ffffff !important;' : ''">
+            <div class="flex justify-between items-center font-bold cursor-pointer mb-3" @click="activePlan = (activePlan === 'plan2' ? '' : 'plan2')">
+              <span class="text-base sm:text-lg font-black" :class="activePlan === 'plan2' ? 'text-white' : 'text-[#0E1015]'">Pro Plan</span>
+              <span class="text-2xl font-black leading-none" :class="activePlan === 'plan2' ? 'text-lime' : 'text-slate-400'" x-text="activePlan === 'plan2' ? '—' : '+'"></span>
+            </div>
+            
+            <div x-show="activePlan === 'plan2'" x-collapse class="space-y-4">
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                For beginners & advanced players. Basic training, limited court usage, and introductory consultation.
+              </p>
+
+              <!-- Feature Bullets (2x2 Grid with Solid Contrast Badges) -->
+              <div class="grid grid-cols-2 gap-2 text-xs border-y border-white/15 py-3.5 my-2">
+                <div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl border border-white/10 text-white font-semibold">
+                  <span class="w-2 h-2 rounded-full bg-lime"></span>
+                  <span>Basic Training</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl border border-white/10 text-white font-semibold">
+                  <span class="w-2 h-2 rounded-full bg-lime"></span>
+                  <span>Equipment Advice</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl border border-white/10 text-white font-semibold">
+                  <span class="w-2 h-2 rounded-full bg-lime"></span>
+                  <span>Limited Access</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl border border-white/10 text-white font-semibold">
+                  <span class="w-2 h-2 rounded-full bg-lime"></span>
+                  <span>Group Classes</span>
+                </div>
+              </div>
+
+              <!-- Button & Pricing Row -->
+              <div class="pt-2 flex items-center justify-between">
+                <div>
+                  <span class="text-base sm:text-lg font-black text-white">Rp 650.000</span>
+                  <span class="text-xs text-slate-300 font-normal"> / month</span>
+                </div>
+                <button type="button" @click="openBookingModal('proplan')" class="rounded-full bg-lime hover:bg-lime-hover text-black px-6 py-2.5 font-black text-xs uppercase tracking-wider flex items-center space-x-1.5 shadow-lg transition-transform transform hover:scale-105">
+                  <span>Join Now</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan 3: Essential Plan -->
+          <div class="plan-card rounded-2xl border transition-all duration-300"
+               :class="activePlan === 'plan3' ? 'bg-black text-white p-6 sm:p-7 shadow-2xl border-black ring-1 ring-white/10' : 'bg-white text-[#0E1015] border-slate-200 p-5 hover:border-slate-300 shadow-sm'"
+               :style="activePlan === 'plan3' ? 'background-color: #000000 !important; color: #ffffff !important;' : ''">
+            <div class="flex justify-between items-center font-bold cursor-pointer" @click="activePlan = (activePlan === 'plan3' ? '' : 'plan3')">
+              <span class="text-base sm:text-lg font-black" :class="activePlan === 'plan3' ? 'text-white' : 'text-[#0E1015]'">Essential Plan</span>
+              <span class="text-2xl font-black leading-none" :class="activePlan === 'plan3' ? 'text-lime' : 'text-slate-400'" x-text="activePlan === 'plan3' ? '—' : '+'"></span>
+            </div>
+            <div x-show="activePlan === 'plan3'" x-collapse class="mt-4 space-y-4">
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                8 Jam booking bulanan bebas pilih jam, diskon sewa raket 50%, dan prioritas turnamen mingguan.
+              </p>
+              <div class="flex justify-between items-center pt-3 border-t border-white/15">
+                <span class="font-black text-white text-sm sm:text-base">Rp 1.250.000 <span class="text-xs font-normal text-slate-300">/ month</span></span>
+                <button type="button" @click="openBookingModal('essential')" class="rounded-full bg-lime hover:bg-lime-hover text-black px-5 py-2.5 font-black text-xs uppercase tracking-wider transition-all">Join Now ↗</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan 4: Complete Plan -->
+          <div class="plan-card rounded-2xl border transition-all duration-300"
+               :class="activePlan === 'plan4' ? 'bg-black text-white p-6 sm:p-7 shadow-2xl border-black ring-1 ring-white/10' : 'bg-white text-[#0E1015] border-slate-200 p-5 hover:border-slate-300 shadow-sm'"
+               :style="activePlan === 'plan4' ? 'background-color: #000000 !important; color: #ffffff !important;' : ''">
+            <div class="flex justify-between items-center font-bold cursor-pointer" @click="activePlan = (activePlan === 'plan4' ? '' : 'plan4')">
+              <span class="text-base sm:text-lg font-black" :class="activePlan === 'plan4' ? 'text-white' : 'text-[#0E1015]'">Complete Plan</span>
+              <span class="text-2xl font-black leading-none" :class="activePlan === 'plan4' ? 'text-lime' : 'text-slate-400'" x-text="activePlan === 'plan4' ? '—' : '+'"></span>
+            </div>
+            <div x-show="activePlan === 'plan4'" x-collapse class="mt-4 space-y-4">
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                Akses unlimited booking off-peak, 4 sesi private coach, gratis sewa raket pro, dan free recovery bath.
+              </p>
+              <div class="flex justify-between items-center pt-3 border-t border-white/15">
+                <span class="font-black text-white text-sm sm:text-base">Rp 2.490.000 <span class="text-xs font-normal text-slate-300">/ month</span></span>
+                <button type="button" @click="openBookingModal('complete')" class="rounded-full bg-lime hover:bg-lime-hover text-black px-5 py-2.5 font-black text-xs uppercase tracking-wider transition-all">Join Now ↗</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Athlete Coach Card (Red Polo on Cyan BG + Trust Badge) -->
+        <div class="lg:col-span-6">
+          <div class="rounded-[28px] overflow-hidden bg-gradient-to-b from-[#1875A8] to-[#125880] aspect-[4/4.5] relative shadow-md flex items-end border border-slate-200">
+            <!-- Authentic Tennis Coach in Headband Holding Wilson Tennis Ball -->
+            <img src="https://images.unsplash.com/photo-1530915534664-4ac6423816b7?auto=format&fit=crop&w=1000&q=80" 
+                 alt="Tennis Coach with Headband and Wilson Tennis Ball" 
+                 class="w-full h-full object-cover object-top mix-blend-normal">
+            
+            <!-- Bottom Glassmorphism Trust Card (Those Who Trust Us) -->
+            <div class="absolute bottom-5 left-5 right-5 bg-white/20 backdrop-blur-md border border-white/25 rounded-2xl p-4 text-white flex items-center justify-between">
+              <div>
+                <span class="text-[10px] uppercase tracking-wider text-white/80 block font-bold">Those Who Trust Us</span>
+                <div class="flex items-center space-x-1.5 mt-1">
+                  <div class="flex -space-x-1.5">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="w-6 h-6 rounded-full border border-white object-cover" alt="Member">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" class="w-6 h-6 rounded-full border border-white object-cover" alt="Member">
+                  </div>
+                  <span class="text-xs font-black">3.2K+ Overall Impressions</span>
+                </div>
+              </div>
+              <div class="w-8 h-8 rounded-full bg-lime text-black flex items-center justify-center font-black text-xs">
+                ★
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- SECTION 5: REAL PLAYERS. REAL STORIES.                   -->
+    <!-- 3 REAL TENNIS ATHLETE PORTRAITS                         -->
+    <!-- ======================================================== -->
+    <section id="players" class="space-y-8 pt-4">
+      
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <h2 class="headline-font text-4xl sm:text-5xl lg:text-[54px] text-[#0E1015]">
+          <span class="italic font-light">REAL PLAYERS</span><br>
+          <span class="font-black">REAL STORIES</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 max-w-sm leading-relaxed">
+          Train or play on 4 professional-grade courts — indoor & outdoor, with night lighting and locker room access.
+        </p>
+      </div>
+
+      <!-- 3 Profile Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- Player 1: Lyra Bennett (Orange Jacket) -->
+        <div class="player-card space-y-2">
+          <div class="rounded-[24px] overflow-hidden bg-slate-200 aspect-[4/5] relative group shadow-sm border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" 
+                 alt="Lyra Bennett" 
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          </div>
+          <div class="px-1">
+            <h4 class="font-black text-sm text-[#0E1015]">Lyra Bennett</h4>
+            <p class="text-xs text-slate-500">Club Member • 3 Years Active</p>
+          </div>
+        </div>
+
+        <!-- Player 2: Luca Moretti (With Quote Overlay Box) -->
+        <div class="player-card space-y-2">
+          <div class="rounded-[24px] overflow-hidden bg-slate-900 aspect-[4/5] relative group shadow-sm border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" 
+                 alt="Luca Moretti" 
+                 class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
+            <!-- Glassmorphism Quote Box -->
+            <div class="absolute inset-5 bg-black/65 backdrop-blur-md rounded-2xl p-5 text-white flex flex-col justify-between border border-white/10">
+              <p class="text-xs sm:text-sm leading-relaxed text-slate-200 font-medium">
+                "Train or play on 4 professional-grade courts — indoor & outdoor, with night lighting and locker room access."
+              </p>
+              <div class="text-lime text-xs font-black uppercase tracking-wider">
+                Tournament Winner 2025
+              </div>
+            </div>
+          </div>
+          <div class="px-1">
+            <h4 class="font-black text-sm text-[#0E1015]">Luca Moretti</h4>
+            <p class="text-xs text-slate-500">Competitive League Player</p>
+          </div>
+        </div>
+
+        <!-- Player 3: Aria Valen (Stretching Overhead in White Athletic Top) -->
+        <div class="player-card space-y-2">
+          <div class="rounded-[24px] overflow-hidden bg-slate-200 aspect-[4/5] relative group shadow-sm border border-slate-200">
+            <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80" 
+                 alt="Aria Valen" 
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          </div>
+          <div class="px-1">
+            <h4 class="font-black text-sm text-[#0E1015]">Aria Valen</h4>
+            <p class="text-xs text-slate-500">Junior Academy Coach</p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- SECTION 6: DARK FOOTER WITH GIANT "LET'S TALK" (CONTACT)  -->
+    <!-- ======================================================== -->
+    <footer id="contact" class="rounded-[36px] bg-[#0E1015] text-white p-8 sm:p-12 lg:p-16 relative overflow-hidden shadow-2xl border border-white/5">
+      
+      <!-- GIANT WATERMARK TEXT: "LET'S TALK" -->
+      <div class="watermark-text font-black text-white/[0.07] uppercase tracking-tighter select-none pointer-events-none mb-6">
+        LET'S TALK
+      </div>
+
+      <!-- Main Footer Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end relative z-10 border-b border-white/10 pb-12">
+        
+        <!-- Left: Social Icons, Address, Phone, Newsletter Input -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- Social Icons -->
+          <div class="flex items-center space-x-4 text-slate-400">
+            <a href="#" class="hover:text-lime transition-colors" aria-label="Facebook">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.5 5H18V0h-3.808C10.595 0 9 1.582 9 4.615V8z"/></svg>
+            </a>
+            <a href="#" class="hover:text-lime transition-colors" aria-label="Instagram">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            <a href="#" class="hover:text-lime transition-colors" aria-label="YouTube">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="#" class="hover:text-lime transition-colors" aria-label="LinkedIn">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            </a>
+          </div>
+
+          <!-- Address and Phone Grid -->
+          <div class="grid grid-cols-2 gap-4 text-xs text-slate-400">
+            <div>
+              <span class="text-white font-bold block mb-1">Address</span>
+              <span>123 Court St, Arena Park<br>Senayan, Jakarta Pusat</span>
+            </div>
+            <div>
+              <span class="text-white font-bold block mb-1">Phone</span>
+              <span class="text-slate-300">+62 812-3456-7890<br>hello@tennisplaza.id</span>
+            </div>
+          </div>
+
+          <!-- Functional Newsletter Form with Reactive Toast -->
+          <form @submit.prevent="showToast('Thank you for subscribing to Tennis Plaza Insider!'); $el.reset();" 
+                class="flex max-w-sm bg-white/10 rounded-full p-1 border border-white/15">
+            <input type="email" placeholder="Enter your email" required class="w-full bg-transparent px-4 py-2 text-xs text-white placeholder-slate-400 focus:outline-none">
+            <button type="submit" class="badge-faceted bg-lime hover:bg-lime-hover text-dark px-4 py-2 font-black text-xs uppercase tracking-wider transition-colors">
+              Submit
+            </button>
+          </form>
+
+        </div>
+
+        <!-- Right: 2 Vignette Photos of Authentic Tennis Equipment & Court -->
+        <div class="lg:col-span-5 flex justify-end gap-3">
+          <div class="w-32 sm:w-40 h-28 sm:h-36 rounded-2xl overflow-hidden bg-slate-800 border border-white/10 shadow-sm">
+            <img src="https://images.unsplash.com/photo-1542144582-1ba00456b5e3?auto=format&fit=crop&w=400&q=80" 
+                 alt="Tennis Racket and Felt Balls" 
+                 class="w-full h-full object-cover">
+          </div>
+          <div class="w-32 sm:w-40 h-28 sm:h-36 rounded-2xl overflow-hidden bg-slate-800 border border-white/10 shadow-sm">
+            <img src="https://images.unsplash.com/photo-1652911588534-b36a1807bf6b?auto=format&fit=crop&w=400&q=80" 
+                 alt="Tennis Racket and Ball on Court" 
+                 class="w-full h-full object-cover">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar: Legal / FAQ -->
+      <div class="pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-3">
+        <div>
+          © 2026 Tennis Plaza Inc. All rights reserved.
+        </div>
+        <div class="flex items-center space-x-6 text-slate-400">
+          <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#" class="hover:text-white transition-colors">Terms And Conditions</a>
+          <a href="#" class="hover:text-white transition-colors">About Us</a>
+          <a href="#" class="hover:text-white transition-colors">FAQ</a>
+        </div>
+      </div>
+
+    </footer>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SLIDE-OVER PRO SHOP CART DRAWER (ALPINE.JS DRIVEN)       -->
+  <!-- ======================================================== -->
+  <div x-show="cartOpen" 
+       class="fixed inset-0 z-50 overflow-hidden" 
+       style="display: none;">
+    <!-- Backdrop -->
+    <div x-show="cartOpen" 
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="cartOpen = false" 
+         class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div x-show="cartOpen" 
+           x-transition:enter="transform transition ease-in-out duration-300"
+           x-transition:enter-start="translate-x-full"
+           x-transition:enter-end="translate-x-0"
+           x-transition:leave="transform transition ease-in-out duration-200"
+           x-transition:leave-start="translate-x-0"
+           x-transition:leave-end="translate-x-full"
+           class="w-screen max-w-md bg-white shadow-2xl p-6 flex flex-col justify-between">
+        
+        <div>
+          <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-lime"></span>
+              <h3 class="font-black text-lg text-dark tracking-tight">Pro Shop Bag</h3>
+            </div>
+            <button type="button" @click="cartOpen = false" class="text-slate-400 hover:text-black font-bold text-lg">✕</button>
+          </div>
+
+          <!-- Cart Items List -->
+          <div class="divide-y divide-slate-100 overflow-y-auto max-h-[60vh] mt-4">
+            <template x-for="item in cart" :key="item.id">
+              <div class="py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <img :src="item.img" class="w-12 h-12 rounded-xl object-cover bg-slate-100" alt="Gear">
+                  <div>
+                    <h4 class="font-bold text-xs text-dark" x-text="item.name"></h4>
+                    <span class="text-[11px] text-slate-500" x-text="'Rp ' + (item.price * item.qty).toLocaleString('id-ID') + ' (' + item.qty + 'x)'"></span>
+                  </div>
+                </div>
+                <button type="button" @click="removeFromCart(item.id)" class="text-red-500 text-xs font-bold hover:underline">Remove</button>
+              </div>
+            </template>
+            <div x-show="cart.length === 0" class="py-8 text-center text-xs text-slate-400">
+              Your bag is currently empty. Explore our Pro Shop collection above!
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkout / Total -->
+        <div class="border-t border-slate-100 pt-4 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-slate-500 uppercase">Subtotal</span>
+            <span class="font-black text-lg text-dark" x-text="'Rp ' + cartTotal.toLocaleString('id-ID')"></span>
+          </div>
+          <button type="button" 
+                  @click="window.open('https://wa.me/6281234567890?text=Hello%20Tennis%20Plaza,%20I%20would%20like%20to%20order%20gear%20from%20the%20Pro%20Shop', '_blank'); cartOpen = false;" 
+                  class="badge-faceted w-full bg-lime hover:bg-lime-hover text-dark py-3.5 font-black text-xs uppercase tracking-wider transition-all text-center">
+            Checkout via WhatsApp ↗
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- NATIVE MODAL DIALOG: FAST BOOKING & RESERVATION          -->
+  <!-- CONFORMS TO MODERN-WEB-GUIDANCE                          -->
+  <!-- ======================================================== -->
+  <dialog id="bookingModal" closedby="any" aria-labelledby="modalTitle" class="rounded-[28px] p-0 w-full max-w-lg bg-white text-[#0E1015] shadow-2xl border border-slate-200 overflow-hidden">
+    
+    <!-- Modal Header -->
+    <div class="bg-court-green text-white p-6 relative">
+      <div class="flex justify-between items-start">
+        <div>
+          <span class="badge-faceted text-[10px] font-black uppercase tracking-widest bg-lime text-black px-2.5 py-1">INSTANT RESERVATION</span>
+          <h3 id="modalTitle" class="headline-font text-3xl font-black mt-2">BOOK YOUR COURT SESSION</h3>
+        </div>
+        <form method="dialog">
+          <button type="submit" value="cancel" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center transition-colors text-sm font-bold" aria-label="Close dialog">
+            ✕
+          </button>
+        </form>
+      </div>
+      <p class="text-xs text-white/70 mt-1">Direct confirmation via WhatsApp with live court scheduling.</p>
+    </div>
+
+    <!-- Modal Form Body -->
+    <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+      
+      <div>
+        <label for="bookName" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Your Full Name</label>
+        <input type="text" id="bookName" placeholder="e.g. Alex Henderson" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-lime focus:bg-white">
+      </div>
+
+      <div>
+        <label for="bookPhone" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">WhatsApp / Phone Number</label>
+        <input type="tel" id="bookPhone" placeholder="e.g. +62 812-3456-7890" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-lime focus:bg-white">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="bookCourt" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Court Selection</label>
+          <select id="bookCourt" x-model="booking.court" @change="calculateBooking()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-lime">
+            <option value="court1">Court 1 & 2 Outdoor Hard</option>
+            <option value="court3">Court 3 & 4 VIP Indoor AC</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="bookDateModal" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Play Date</label>
+          <input type="date" id="bookDateModal" x-model="booking.date" @change="calculateBooking()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-lime">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="bookTime" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Select Time Slot</label>
+          <select id="bookTime" x-model="booking.time" @change="calculateBooking()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-lime">
+            <option value="07:00">07:00 AM (Morning Regular)</option>
+            <option value="09:00">09:00 AM (Regular)</option>
+            <option value="16:00">04:00 PM (Sunset Peak)</option>
+            <option value="18:00">06:00 PM (Evening Peak)</option>
+            <option value="20:00">08:00 PM (Night Peak)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="bookDuration" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Session Duration</label>
+          <select id="bookDuration" x-model="booking.duration" @change="calculateBooking()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-lime">
+            <option value="1">1 Hour</option>
+            <option value="1.5">1.5 Hours (Recommended)</option>
+            <option value="2">2 Hours</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Addons -->
+      <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Optional Add-Ons</div>
+        
+        <label class="flex items-center justify-between text-xs text-slate-900 font-semibold cursor-pointer">
+          <span class="flex items-center space-x-2">
+            <input type="checkbox" x-model="booking.racket" @change="calculateBooking()" class="w-4 h-4 text-black rounded border-slate-300 focus:ring-lime">
+            <span>Pro Racket Rental (2 Rackets)</span>
+          </span>
+          <span class="text-slate-500">+Rp 80.000</span>
+        </label>
+
+        <label class="flex items-center justify-between text-xs text-slate-900 font-semibold cursor-pointer">
+          <span class="flex items-center space-x-2">
+            <input type="checkbox" x-model="booking.balls" @change="calculateBooking()" class="w-4 h-4 text-black rounded border-slate-300 focus:ring-lime">
+            <span>New Official Ball Can (3 Balls)</span>
+          </span>
+          <span class="text-slate-500">+Rp 95.000</span>
+        </label>
+      </div>
+
+      <!-- Price Estimate -->
+      <div class="bg-lime-light border border-lime p-4 rounded-2xl flex justify-between items-center">
+        <div>
+          <span class="text-xs text-slate-700 font-bold uppercase tracking-wider">Estimated Total</span>
+          <div class="text-xs text-slate-500">Live Court Rate</div>
+        </div>
+        <div class="headline-font text-3xl font-black text-black" x-text="'Rp ' + booking.total.toLocaleString('id-ID')">
+        </div>
+      </div>
+
+      <!-- Submit via WhatsApp -->
+      <div class="pt-2 space-y-2">
+        <button type="button" 
+                @click="submitBooking()" 
+                class="badge-faceted w-full bg-lime hover:bg-lime-hover text-black py-3.5 font-black text-sm tracking-wide shadow transition-all flex items-center justify-center space-x-2">
+          <span>Proceed via WhatsApp</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+        <form method="dialog" class="w-full">
+          <button type="submit" value="cancel" class="w-full text-slate-400 hover:text-slate-600 text-xs font-semibold py-2">
+            Cancel
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </dialog>
+
+  <!-- ======================================================== -->
+  <!-- ALPINE.JS + GSAP CONTROLLER SCRIPT                       -->
+  <!-- ======================================================== -->
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('tennisApp', () => ({
+        activeTab: 'programs',
+        planTab: 'start',
+        cartOpen: false,
+        cart: [
+          { 
+            id: 1, 
+            name: 'Vortex Carbon Pro Racket', 
+            price: 1850000, 
+            qty: 1, 
+            img: 'https://images.unsplash.com/photo-1542144582-1ba00456b5e3?auto=format&fit=crop&w=200&q=80' 
+          }
+        ],
+        activePlan: 'plan2', // Pro Plan open by default matching screenshot
+        toast: { show: false, message: '' },
+        booking: {
+          court: 'court1',
+          date: new Date().toISOString().split('T')[0],
+          time: '18:00',
+          duration: 1.5,
+          racket: false,
+          balls: false,
+          total: 570000
+        },
+
+        init() {
+          this.calculateBooking();
+          this.initGSAP();
+          this.initScrollSpy();
+        },
+
+        initScrollSpy() {
+          const sections = document.querySelectorAll('section[id]');
+          const navIds = ['programs', 'about', 'courts', 'shop'];
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting && navIds.includes(entry.target.id)) {
+                this.activeTab = entry.target.id;
+              }
+            });
+          }, { threshold: 0.25, rootMargin: '-70px 0px -40% 0px' });
+          sections.forEach(s => observer.observe(s));
+        },
+
+        showToast(msg) {
+          this.toast.message = msg;
+          this.toast.show = true;
+          setTimeout(() => { this.toast.show = false; }, 3200);
+        },
+
+        addToCart(name, price, img) {
+          const existing = this.cart.find(i => i.name === name);
+          if (existing) {
+            existing.qty++;
+          } else {
+            this.cart.push({ id: Date.now(), name, price, qty: 1, img });
+          }
+          this.showToast(`Added to Bag: ${name}`);
+        },
+
+        removeFromCart(id) {
+          this.cart = this.cart.filter(i => i.id !== id);
+        },
+
+        get cartTotal() {
+          return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        },
+
+        get cartCount() {
+          return this.cart.reduce((sum, item) => sum + item.qty, 0);
+        },
+
+        calculateBooking() {
+          const isPeak = parseInt(this.booking.time.split(':')[0], 10) >= 16;
+          let rate = isPeak ? 380000 : 250000;
+          let sub = rate * parseFloat(this.booking.duration);
+          if (this.booking.racket) sub += 80000;
+          if (this.booking.balls) sub += 95000;
+          this.booking.total = sub;
+          return sub;
+        },
+
+        openBookingModal(preset) {
+          this.calculateBooking();
+          const modal = document.getElementById('bookingModal');
+          if (modal) modal.showModal();
+        },
+
+        submitBooking() {
+          const name = document.getElementById('bookName').value.trim() || 'Player';
+          const phone = document.getElementById('bookPhone').value.trim() || '-';
+          const court = document.getElementById('bookCourt').options[document.getElementById('bookCourt').selectedIndex].text;
+          const date = this.booking.date;
+          const time = this.booking.time;
+          const duration = this.booking.duration;
+          const total = 'Rp ' + this.booking.total.toLocaleString('id-ID');
+
+          const addons = [];
+          if (this.booking.racket) addons.push('Pro Racket Rental');
+          if (this.booking.balls) addons.push('New Official Ball Can');
+          const addonStr = addons.length ? addons.join(', ') : 'None';
+
+          const message = `Hello Tennis Plaza!%0A%0AI would like to confirm a court booking:%0A- *Name:* ${encodeURIComponent(name)}%0A- *Phone:* ${encodeURIComponent(phone)}%0A- *Court:* ${encodeURIComponent(court)}%0A- *Date:* ${encodeURIComponent(date)}%0A- *Time:* ${encodeURIComponent(time)} (${duration} Hours)%0A- *Add-ons:* ${encodeURIComponent(addonStr)}%0A- *Estimated Total:* ${encodeURIComponent(total)}%0A%0APlease provide availability and payment instructions. Thank you!`;
+
+          const modal = document.getElementById('bookingModal');
+          if (modal) modal.close();
+          window.open(`https://wa.me/6281234567890?text=${message}`, '_blank');
+        },
+
+        initGSAP() {
+          if (typeof gsap === 'undefined') return;
+
+          // Navbar entrance
+          gsap.from('#mainNavbar', {
+            y: -50,
+            opacity: 0,
+            duration: 0.9,
+            ease: 'power3.out'
+          });
+
+          // Hero elements entrance
+          gsap.from('.hero-anim-item', {
+            y: 40,
+            opacity: 0,
+            stagger: 0.15,
+            duration: 1,
+            delay: 0.2,
+            ease: 'power3.out'
+          });
+
+          // Racket subtle entrance
+          gsap.from('#heroBlueRacket', {
+            scale: 0.9,
+            opacity: 0,
+            rotation: -10,
+            duration: 1.2,
+            delay: 0.3,
+            ease: 'back.out(1.2)'
+          });
+
+          // ScrollTrigger reveals for sections
+          if (typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.from('.about-card', {
+              scrollTrigger: {
+                trigger: '#about',
+                start: 'top 85%',
+              },
+              y: 35,
+              opacity: 0,
+              stagger: 0.14,
+              duration: 0.75,
+              ease: 'power2.out',
+              clearProps: 'opacity,transform'
+            });
+
+            gsap.from('.court-card', {
+              scrollTrigger: {
+                trigger: '#courts',
+                start: 'top 80%',
+              },
+              y: 45,
+              opacity: 0,
+              stagger: 0.18,
+              duration: 0.85,
+              ease: 'power2.out'
+            });
+
+            gsap.from('.gear-card', {
+              scrollTrigger: {
+                trigger: '#shop',
+                start: 'top 80%',
+              },
+              y: 45,
+              opacity: 0,
+              stagger: 0.16,
+              duration: 0.8,
+              ease: 'power2.out'
+            });
+
+            gsap.from('.plan-card', {
+              scrollTrigger: {
+                trigger: '#programs',
+                start: 'top 80%',
+              },
+              y: 35,
+              opacity: 0,
+              stagger: 0.14,
+              duration: 0.75,
+              ease: 'power2.out',
+              clearProps: 'opacity,transform'
+            });
+
+            gsap.from('.player-card', {
+              scrollTrigger: {
+                trigger: '#players',
+                start: 'top 80%',
+              },
+              y: 45,
+              opacity: 0,
+              stagger: 0.15,
+              duration: 0.8,
+              ease: 'power2.out'
+            });
+
+            gsap.from('.watermark-text', {
+              scrollTrigger: {
+                trigger: 'footer',
+                start: 'top 90%',
+              },
+              x: -60,
+              opacity: 0,
+              duration: 1.2,
+              ease: 'power3.out'
+            });
+          }
+        }
+      }));
+    });
+
+    // Fallback light-dismiss for modal per modern-web-guidance
+    const modalEl = document.getElementById('bookingModal');
+    if (modalEl && !('closedBy' in HTMLDialogElement.prototype)) {
+      modalEl.addEventListener('click', (event) => {
+        if (event.target !== modalEl) return;
+        const rect = modalEl.getBoundingClientRect();
+        const isContent = (
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width
+        );
+        if (!isContent) modalEl.close();
+      });
+    }
+  </script>
+</body>
+</html>
